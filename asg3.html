@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="Blocky World" content="width=device-width, initial-scale=1.0">
+    <title>Blocky World</title>
+
+    <script type="module" , src="ResourceLoader.js"></script>
+
+    <script src="lib/cuon-matrix.js"></script>
+
+    <script src="Assets/test.js"></script>
+
+    <script src="Graphics/GraphicsEngine.js"></script>
+    <script src="Graphics/RenderObject.js"></script>
+    <script src="Graphics/Shader.js"></script>
+    <script src="Graphics/Mesh.js"></script>
+    <script src="Graphics/Texture.js"></script>
+
+    <script src="Graphics/Shaders/MeshShaders.js"></script>
+    <script src="Graphics/Shaders/VoxelShaders.js"></script>
+    <script src="Graphics/Shaders/SkyShaders.js"></script>
+    <script src="Graphics/Shaders/ScreenShaders.js"></script>
+
+    <script src="Scene/VoxelEngine.js"></script>
+    <script src="Scene/WorldGenerator.js"></script>
+    <script src="Scene/Camera.js"></script>
+
+    <script src="Game.js"></script>
+    <script src="asg3.js"></script>
+</head>
+
+<body">
+    <div class="app">
+        <!-- Top Panel -->
+        <div class="top-panel">
+            <div class="left">
+                <span id="FrameInfo">FPS</span>
+            </div>
+
+            <div class="center">
+                <div class="slider-inline">
+                    <span>LodMin Distance:</span>
+                    <input id="lodMin" type="range" min="4" max="12" value="6">
+                    <span class="value" id="lodMinVal">6</span>
+                </div>
+
+                <div class="slider-inline">
+                    <span>LodMax Distance:</span>
+                    <input id="lodMax" type="range" min="10" max="100" value="50">
+                    <span class="value" id="lodMaxVal">50</span>
+                </div>
+            </div>
+
+            <div class="right">
+                <span id="PositionInfo">Position</span>
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <label>
+                Sensitivity
+                <input type="range" min="1" max="100" value="50">
+            </label>
+
+            <label>
+                Speed
+                <input type="range" min="1" max="100" value="50">
+            </label>
+
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.
+            </p>
+        </div>
+    </div>
+    </body>
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: system-ui, sans-serif;
+            background: #111;
+            color: #eee;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .top-panel {
+            grid-column: 1 / 2;
+            grid-row: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #1b1b1b;
+            border-bottom: 1px solid #333;
+            gap: 12px;
+        }
+
+        .top-panel .center {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        /* Force horizontal layout */
+        .slider-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        /* Prevent label text from wrapping above */
+        .slider-inline span {
+            flex: 0 0 auto;
+        }
+
+        /* Control slider width so layout stays tight */
+        .slider-inline input {
+            width: 120px;
+        }
+
+        .top-panel .left,
+        .top-panel .right {
+            white-space: nowrap;
+        }
+
+        /* Inline slider labels (label left, slider right) */
+        label.inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        label.inline input {
+            width: 120px;
+        }
+
+        .canvas-container {
+            grid-column: 1 / 2;
+            grid-row: 2;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .right-panel {
+            grid-column: 2;
+            grid-row: 1 / span 2;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 10px;
+            background: #1b1b1b;
+            border-left: 1px solid #333;
+
+            /* Key change: no forced width */
+            width: fit-content;
+            max-width: 180px;
+        }
+
+        label {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+            gap: 4px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        p {
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: #bbb;
+        }
+    </style>
+
+</html>
