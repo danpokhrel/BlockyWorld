@@ -44,8 +44,8 @@ class Game {
     }
 
     setup() {
-        this.camera.position = { x: 40, y: 40, z: 40 };
-        this.camera.forwardVec = normalize({ x: -1, y: -1, z: -1 });
+        this.camera.position = { x: -100, y: 60, z: -100 };
+        this.camera.forwardVec = normalize({ x: 1, y: 0, z: 1 });
         this.updateCanvas();
 
         const engine = this.engine;

@@ -39,11 +39,7 @@ pub fn generate_chunk(arr: &mut Box<[u8; VOX_COUNT]>, origin: CVec3) {
         }
 
         if y >= h2 {
-            if y == height - 1 {
-                arr[idx] = 3;
-            } else {
-                arr[idx] = 3;
-            }
+            arr[idx] = 3;
         } else if y == height - 1 {
             arr[idx] = 2;
         } else {
