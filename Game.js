@@ -1,7 +1,6 @@
 class Game {
     constructor(tickCallback) {
         const engine = new GraphicsEngine();
-        const voxels = new VoxelEngine(engine);
         const camera = new Camera();
         const game = this;
         this.engine = engine;
@@ -13,7 +12,7 @@ class Game {
         let lastTime = performance.now();
         const frameLabel = document.getElementById("FrameInfo");
         const posLabel = document.getElementById("PositionInfo");
-        const AVG_OVER = 1000;
+        const AVG_OVER = 100;
 
         this.setup();
 
@@ -27,7 +26,7 @@ class Game {
             if (frameTimes.length > AVG_OVER) { frameTimes.shift(); }
 
             //-------- Event Tick --------//
-            tickCallback();
+            tickCallback(deltaTime);
             game.tick();
 
             //-------- Render --------//
@@ -37,7 +36,7 @@ class Game {
             renderTimes.push(performance.now() - now);
             if (renderTimes.length > AVG_OVER) { renderTimes.shift(); }
             const fps = 1000 / average(frameTimes);
-            const renderTime = average(renderTimes);
+            const renderTime = average(frameTimes);
             frameLabel.innerHTML = "ms: " + renderTime.toFixed(1) + " fps: " + fps.toFixed(0);
 
             requestAnimationFrame(_tick);
@@ -45,9 +44,12 @@ class Game {
     }
 
     setup() {
+        this.camera.position = { x: 40, y: 40, z: 40 };
+        this.camera.forwardVec = normalize({ x: -1, y: -1, z: -1 });
         this.updateCanvas();
 
         const engine = this.engine;
+        return;
 
         const shader = new Shader(
             engine.gl,
@@ -85,6 +87,10 @@ class Game {
      */
     keyMove(x, y, z) {
         this.camera.moveCamera(x, y, z);
+    }
+
+    updateWireframe(isChecked) {
+        this.engine.wireFrame = isChecked;
     }
 }
 

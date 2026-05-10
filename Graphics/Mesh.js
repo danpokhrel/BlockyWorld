@@ -58,10 +58,11 @@ class VoxelMesh {
     constructor(gl, shader) {
         /** @type {WebGL2RenderingContext} */
         this.gl = gl;
-        /** @type {Uint32Array} */
 
-        const wasm = window.WASM;
-        this.vertexData = wasm.get_buffer();
+        this.engine = new window.WASM.VoxelEngine(gl, shader.program);
+        this.engine.init();
+
+        this.vertexData = this.engine.get_bytes();
         this.vertexCount = this.vertexData.length;
 
         this.shader = shader;

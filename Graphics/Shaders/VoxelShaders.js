@@ -1,8 +1,13 @@
 //------------------Vertex Shader------------------
 const VERT_VOXEL_SHADER = /*glsl*/`#version 300 es
 
-uniform mat4 projection;
-uniform mat4 view;
+layout(std140) uniform Camera {
+    mat4 cameraMat;
+};
+
+layout(std140) uniform Chunk {
+    mat4 modelMat;
+};
 
 // Packed Bytes
 in uint voxelData;
@@ -79,12 +84,12 @@ void main() {
     decode(voxelData, position, face, tex, ao);
 
     vTexIndex = tex;
-    vAO = (float(ao)/3.0) / 2.0;
+    vAO = (float(ao)/3.0) * 0.8;
 
     vec2 uv = getVertexUV(uint(gl_VertexID), face);
     vUV = getFaceUV(face, uv);
 
-    gl_Position = projection * view * vec4(position, 1.0);
+    gl_Position = cameraMat * modelMat * vec4(position, 1.0);
 }
 
 `
@@ -102,6 +107,11 @@ in float vAO;
 out vec4 outColor;
 
 void main(){
+    vec2 grid = abs(fract(vUV * 16.0) - 0.5);
+    float line = min(grid.x, grid.y);
+
+    float wire = smoothstep(0.02, 0.0, line);
+
     outColor = texture(textureArray, vec3(vUV, float(vTexIndex)));
     outColor[0] *= 1.0-vAO;
     outColor[1] *= 1.0-vAO;

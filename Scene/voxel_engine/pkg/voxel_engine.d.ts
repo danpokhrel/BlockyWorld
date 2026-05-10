@@ -1,18 +1,29 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export function get_buffer(): Uint32Array;
-
-export function perf_test(i: number): Uint32Array;
+export class VoxelEngine {
+    free(): void;
+    [Symbol.dispose](): void;
+    draw_chunks(mode: number): void;
+    init(): void;
+    constructor(gl: WebGL2RenderingContext, program: WebGLProgram);
+    upload_chunks(): void;
+}
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
-    readonly get_buffer: () => [number, number];
-    readonly perf_test: (a: number) => [number, number];
+    readonly __wbg_voxelengine_free: (a: number, b: number) => void;
+    readonly voxelengine_draw_chunks: (a: number, b: number) => void;
+    readonly voxelengine_init: (a: number) => void;
+    readonly voxelengine_new: (a: any, b: any) => number;
+    readonly voxelengine_upload_chunks: (a: number) => void;
+    readonly __wbindgen_malloc: (a: number, b: number) => number;
+    readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+    readonly __externref_table_alloc: () => number;
     readonly __wbindgen_externrefs: WebAssembly.Table;
-    readonly __wbindgen_free: (a: number, b: number, c: number) => void;
+    readonly __wbindgen_exn_store: (a: number) => void;
     readonly __wbindgen_start: () => void;
 }
 

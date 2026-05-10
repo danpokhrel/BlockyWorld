@@ -4,11 +4,13 @@ async function main() {
     const canvas = document.getElementById("canvas");
 
     var sensitivity = 0.002;
-    var moveSpeed = 0.05;
+    var moveSpeed = 0.2;
     var moveKeys = { x: 0, y: 0, z: 0 };
 
-    function tick() {
-        game.keyMove(moveKeys.x * moveSpeed, moveKeys.y * moveSpeed, moveKeys.z * moveSpeed);
+    function tick(deltaTime) {
+        game.keyMove(moveKeys.x * moveSpeed * deltaTime,
+            moveKeys.y * moveSpeed * deltaTime,
+            moveKeys.z * moveSpeed * deltaTime);
     }
 
     canvas.addEventListener("click", () => {
@@ -68,6 +70,11 @@ async function main() {
                 moveKeys.y = 0;
                 break;
         };
+    });
+
+    const wireframeInput = document.getElementById("wireframe");
+    wireframeInput.addEventListener("input", (e) => {
+        game.updateWireframe(e.target.checked);
     })
 
     window.addEventListener("resize", () => {

@@ -14,11 +14,25 @@ class Shader {
 
         this.uploadTextures();
 
-        this.projAttribLoc = gl.getUniformLocation(this.program, "projection");
-        this.viewAttribLoc = gl.getUniformLocation(this.program, "view");
-        this.modelAttribLoc = gl.getUniformLocation(this.program, "model");
+        this.cameraUBO = gl.createBuffer();
+        gl.bindBuffer(gl.UNIFORM_BUFFER, this.cameraUBO);
+        const camIndex = gl.getUniformBlockIndex(this.program, "Camera");
+        const camSize = gl.getActiveUniformBlockParameter(this.program, camIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
+        gl.bufferData(gl.UNIFORM_BUFFER, camSize, gl.DYNAMIC_DRAW);
 
-        this.modelAttribLoc = gl.getUniformLocation(this.program, "model");
+        const camBindingPoint = 0;
+        gl.bindBufferBase(gl.UNIFORM_BUFFER, camBindingPoint, this.cameraUBO);
+        gl.uniformBlockBinding(this.program, camIndex, camBindingPoint);
+
+        this.chunkUBO = gl.createBuffer();
+        gl.bindBuffer(gl.UNIFORM_BUFFER, this.chunkUBO);
+        const chunkIndex = gl.getUniformBlockIndex(this.program, "Chunk");
+        const chunkSize = gl.getActiveUniformBlockParameter(this.program, chunkIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
+        gl.bufferData(gl.UNIFORM_BUFFER, chunkSize, gl.STATIC_DRAW);
+
+        const chunkBindingPoint = 1;
+        gl.bindBufferBase(gl.UNIFORM_BUFFER, chunkBindingPoint, this.chunkUBO);
+        gl.uniformBlockBinding(this.program, chunkIndex, chunkBindingPoint);
     }
 
     createProgram() {
@@ -36,28 +50,36 @@ class Shader {
         return program;
     }
 
+    /**
+     * @param {Matrix4} view
+     * @param {Matrix4} proj  
+     */
+    uploadCameraUBO(view, proj) {
+        const mat = new Matrix4(proj);
+        mat.multiply(view);
+        this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.cameraUBO);
+        this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, mat.elements);
+    }
+
+    /**
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} z 
+     */
+    uploadChunkUBO(x, y, z) {
+        let mat = new Matrix4();
+        mat.setTranslate(x, y, z);
+        this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.chunkUBO);
+        this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, mat.elements);
+    }
+
     uploadTextures() {
         this.gl.useProgram(this.program);
-        this.texture = setupTextures(this.gl, ["Assets/grass.png", "Assets/cactus.png"], 128 * 3, 128 * 2);
+        this.texture = setupTextures(this.gl);
         const loc = this.gl.getUniformLocation(this.program, "textureArray");
         this.gl.uniform1i(loc, 0);
 
         this.gl.activeTexture(this.gl.TEXTURE0);
         this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, this.texture);
-    }
-
-    /** 
-     * @param {Matrix4} viewMat 
-     * @param {Matrix4} projMat 
-     */
-    uploadCameraUniforms(viewMat, projMat) {
-        this.gl.uniformMatrix4fv(this.viewAttribLoc, false, viewMat.elements);
-        this.gl.uniformMatrix4fv(this.projAttribLoc, false, projMat.elements);
-    }
-    /**
-     * @param {Matrix4} modelMat 
-     */
-    uploadModelUniforms(modelMat) {
-        this.gl.uniformMatrix4fv(this.modelAttribLoc, false, modelMat.elements);
     }
 }

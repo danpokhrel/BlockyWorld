@@ -1,9 +1,13 @@
 //------------------Vertex Shader------------------
 const VERT_SHADER_CODE = /*glsl*/`#version 300 es
 
-uniform mat4 projection;
-uniform mat4 view;
-uniform mat4 model;
+layout(std140) uniform Camera {
+    mat4 cameraMat;
+};
+
+layout(std140) uniform Model {
+    mat4 model;
+};
 
 in vec3 position;
 in vec2 uv;
@@ -13,7 +17,7 @@ in vec2 uv;
 
 void main() {
     //vNormal = normal;
-    gl_Position = projection * view * model * vec4(position, 1.0);
+    gl_Position = cameraMat * model * vec4(position, 1.0);
 }
 
 `
