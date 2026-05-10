@@ -51,6 +51,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "noiselib"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f417c7f81894f619dd70f6b685cdcabd5e08c692df35a7a938aab3ca3e5a4c0"
+
+[[package]]
 name = "once_cell"
 version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -113,6 +119,7 @@ checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
 name = "voxel_engine"
 version = "0.1.0"
 dependencies = [
+ "noiselib",
  "wasm-bindgen",
  "web-sys",
 ]

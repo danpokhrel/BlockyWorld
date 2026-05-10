@@ -1,6 +1,7 @@
 use crate::types::*;
 
-pub const HEIGHT_LIMIT: i32 = 32;
+pub const HEIGHT_LIMIT_C: i32 = 5;
+pub const HEIGHT_LIMIT: i32 = 32 * HEIGHT_LIMIT_C;
 // Padded on all sides
 pub const SIZE: usize = 32 + 2;
 pub const SIZE8: u8 = SIZE as u8;

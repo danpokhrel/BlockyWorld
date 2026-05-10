@@ -5,7 +5,7 @@ window.WASM = { VoxelEngine };
 
 // ---------- Textures ---------- // 
 const dir = "./Assets/Blocks/";
-const urls = ["grass.png", "cactus.png"];
+const urls = ["dirt.png", "grass.png", "stone.png", "stone_grass.png", "water.png"];
 window.blockTextures = [];
 for (let url of urls) {
     const img = new Image();

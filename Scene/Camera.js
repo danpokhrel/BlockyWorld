@@ -14,7 +14,7 @@ class Camera {
     }
 
     updateMats() {
-        this.projMat.setPerspective(this.fov, (this.canvas.width / this.canvas.height), 0.1, 1000);
+        this.projMat.setPerspective(this.fov, (this.canvas.width / this.canvas.height), 0.1, 5000);
         const lookPoint = { x: this.forwardVec.x + this.position.x, y: this.forwardVec.y + this.position.y, z: this.forwardVec.z + this.position.z };
         this.transform.setLookAt(this.position.x, this.position.y, this.position.z, lookPoint.x, lookPoint.y, lookPoint.z, 0, 1, 0);
     }

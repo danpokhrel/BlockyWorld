@@ -29,16 +29,18 @@ impl VoxelEngine {
     #[wasm_bindgen]
     pub fn init(&mut self) {
         // create chunk objects
-        for x in -10..11 {
-            for y in -10..11 {
-                self.chunks.insert(
-                    CVec3(x * 32, 0, y * 32),
-                    (
-                        VoxelChunk::new(),
-                        self.gl.create_vertex_array().unwrap(),
-                        self.gl.create_buffer().unwrap(),
-                    ),
-                );
+        for x in -10..21 {
+            for y in 0..HEIGHT_LIMIT_C {
+                for z in -10..21 {
+                    self.chunks.insert(
+                        CVec3(x * 32, y * 32, z * 32),
+                        (
+                            VoxelChunk::new(),
+                            self.gl.create_vertex_array().unwrap(),
+                            self.gl.create_buffer().unwrap(),
+                        ),
+                    );
+                }
             }
         }
 
