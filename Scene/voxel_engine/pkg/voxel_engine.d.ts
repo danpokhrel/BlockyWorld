@@ -5,7 +5,7 @@ export class VoxelEngine {
     free(): void;
     [Symbol.dispose](): void;
     draw_chunks(mode: number): void;
-    init(): void;
+    init(): Int32Array;
     constructor(gl: WebGL2RenderingContext, program: WebGLProgram);
     upload_chunks(): void;
 }
@@ -16,7 +16,7 @@ export interface InitOutput {
     readonly memory: WebAssembly.Memory;
     readonly __wbg_voxelengine_free: (a: number, b: number) => void;
     readonly voxelengine_draw_chunks: (a: number, b: number) => void;
-    readonly voxelengine_init: (a: number) => void;
+    readonly voxelengine_init: (a: number) => [number, number];
     readonly voxelengine_new: (a: any, b: any) => number;
     readonly voxelengine_upload_chunks: (a: number) => void;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
@@ -24,6 +24,7 @@ export interface InitOutput {
     readonly __externref_table_alloc: () => number;
     readonly __wbindgen_externrefs: WebAssembly.Table;
     readonly __wbindgen_exn_store: (a: number) => void;
+    readonly __wbindgen_free: (a: number, b: number, c: number) => void;
     readonly __wbindgen_start: () => void;
 }
 

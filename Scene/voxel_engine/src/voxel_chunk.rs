@@ -1,4 +1,5 @@
 use crate::types::*;
+use wasm_bindgen::prelude::*;
 
 pub const HEIGHT_LIMIT_C: i32 = 5;
 pub const HEIGHT_LIMIT: i32 = 32 * HEIGHT_LIMIT_C;
@@ -9,30 +10,45 @@ pub const VOX_COUNT: usize = SIZE * SIZE * SIZE;
 const VERT_BUFFER_RESERVE_SIZE: usize = 100_000;
 
 pub struct VoxelChunk {
-    pub arr: Box<[u8; VOX_COUNT]>,
+    pub arr: Option<Box<[u8; VOX_COUNT]>>,
     pub verts: Vec<u32>,
-    pub has_mesh: bool,
+    pub ready: bool,
 }
 
 impl VoxelChunk {
     pub fn new() -> Self {
         Self {
-            arr: Box::new([0; VOX_COUNT]),
-            verts: Vec::with_capacity(VERT_BUFFER_RESERVE_SIZE),
-            has_mesh: false,
+            arr: None,
+            verts: vec![],
+            ready: false,
         }
+    }
+
+    pub fn init(&mut self) {
+        self.arr = Some(Box::new([0; VOX_COUNT]));
+        self.verts.reserve(VERT_BUFFER_RESERVE_SIZE);
+    }
+
+    pub fn free(&mut self) {
+        self.arr = None;
+        self.verts = vec![];
     }
 
     pub fn generate_mesh(&mut self) {
         let mut neighbors: [[[bool; 3]; 3]; 3] = [[[false; 3]; 3]; 3];
         let (mut ao0, mut ao1, mut ao2, mut ao3): (u8, u8, u8, u8);
 
+        if self.arr.is_none() {
+            self.init();
+        }
+        let arr = self.arr.as_mut().unwrap();
+
         for x in 1..SIZE8 - 1 {
             for y in 1..SIZE8 - 1 {
                 for z in 1..SIZE8 - 1 {
                     // Coordinates and indicies
                     let idx = xyz_idx(x, y, z);
-                    let i = self.arr[idx];
+                    let i = arr[idx];
                     if i == 0 {
                         continue;
                     }
@@ -42,9 +58,8 @@ impl VoxelChunk {
                     for dx in 0..3u8 {
                         for dy in 0..3u8 {
                             for dz in 0..3u8 {
-                                neighbors[dx as usize][dy as usize][dz as usize] = self.arr
-                                    [xyz_idx(x + (dx - 1), y + (dy - 1), z + (dz - 1))]
-                                    == 0;
+                                neighbors[dx as usize][dy as usize][dz as usize] =
+                                    arr[xyz_idx(x + (dx - 1), y + (dy - 1), z + (dz - 1))] == 0;
                             }
                         }
                     }
@@ -95,8 +110,6 @@ impl VoxelChunk {
                 }
             }
         }
-
-        self.has_mesh = true;
     }
 }
 

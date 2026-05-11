@@ -19,7 +19,7 @@ class GraphicsEngine {
         this.voxelEngine = new window.WASM.VoxelEngine(this.gl, this.voxelShader.program);
 
         let start = performance.now();
-        this.voxelEngine.init();
+        console.log(this.voxelEngine.init());
         console.log("Generation: ", performance.now() - start);
         start = performance.now();
         this.voxelEngine.upload_chunks();
