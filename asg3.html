@@ -41,15 +41,9 @@
 
             <div class="center">
                 <div class="slider-inline">
-                    <span>LodMin Distance:</span>
-                    <input id="lodMin" type="range" min="4" max="12" value="6">
-                    <span class="value" id="lodMinVal">6</span>
-                </div>
-
-                <div class="slider-inline">
-                    <span>LodMax Distance:</span>
-                    <input id="lodMax" type="range" min="10" max="100" value="50">
-                    <span class="value" id="lodMaxVal">50</span>
+                    <span>Render Distance</span>
+                    <input id="renderDisInput" type="range" min="4" max="40" value="10">
+                    <span class="value" id="renderDisValue">320 </span>
                 </div>
             </div>
 
@@ -70,13 +64,17 @@
                 Wireframe
             </label>
             <label>
+                <input type="checkbox" id="pauseCulling">
+                Pause Frustum Culling
+            </label>
+            <label id=senLabel>
                 Sensitivity
-                <input type="range" min="1" max="100" value="50">
+                <input type="range" min="1" max="100" value="50" id="senInput">
             </label>
 
-            <label>
+            <label id="spedLabel">
                 Speed
-                <input type="range" min="1" max="100" value="50">
+                <input type="range" min="1" max="100" value="50" id="speedInput">
             </label>
 
             <p>
@@ -130,19 +128,9 @@
         /* Force horizontal layout */
         .slider-inline {
             display: flex;
-            align-items: center;
+            align-items: left;
             gap: 8px;
             white-space: nowrap;
-        }
-
-        /* Prevent label text from wrapping above */
-        .slider-inline span {
-            flex: 0 0 auto;
-        }
-
-        /* Control slider width so layout stays tight */
-        .slider-inline input {
-            width: 120px;
         }
 
         .top-panel .left,

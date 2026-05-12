@@ -5,12 +5,17 @@ async function main() {
 
     var sensitivity = 0.002;
     var moveSpeed = 0.2;
-    var moveKeys = { x: 0, y: 0, z: 0 };
+    var moveKeys = { w: false, a: false, s: false, d: false, up: false, down: false };
 
+    const positionLabel = document.getElementById("PositionInfo");
     function tick(deltaTime) {
-        game.keyMove(moveKeys.x * moveSpeed * deltaTime,
-            moveKeys.y * moveSpeed * deltaTime,
-            moveKeys.z * moveSpeed * deltaTime);
+        let z = (moveKeys.w - moveKeys.s) * moveSpeed;
+        let x = (moveKeys.a - moveKeys.d) * moveSpeed;
+        let y = (moveKeys.up - moveKeys.down) * moveSpeed;
+        game.keyMove(x * deltaTime, y * deltaTime, z * deltaTime);
+
+        const pos = game.getPosition();
+        positionLabel.innerHTML = `Position: x:${pos.x} y:${pos.y} z:${pos.z}`;
     }
 
     canvas.addEventListener("click", () => {
@@ -30,44 +35,44 @@ async function main() {
     document.addEventListener("keydown", (e) => {
         switch (e.code) {
             case "KeyW":
-                moveKeys.z = 1;
+                moveKeys.w = true;
                 break;
             case "KeyA":
-                moveKeys.x = 1;
+                moveKeys.a = true;
                 break;
             case "KeyS":
-                moveKeys.z = -1;
+                moveKeys.s = true;
                 break;
             case "KeyD":
-                moveKeys.x = -1;
+                moveKeys.d = true;
                 break;
             case "Space":
-                moveKeys.y = 0.5;
+                moveKeys.up = true;
                 break;
             case "ShiftLeft":
-                moveKeys.y = -0.5;
+                moveKeys.down = true;
                 break;
         };
     });
     document.addEventListener("keyup", (e) => {
         switch (e.code) {
             case "KeyW":
-                moveKeys.z = 0;
+                moveKeys.w = false;
                 break;
             case "KeyA":
-                moveKeys.x = 0;
+                moveKeys.a = false;
                 break;
             case "KeyS":
-                moveKeys.z = 0;
+                moveKeys.s = false;
                 break;
             case "KeyD":
-                moveKeys.x = 0;
+                moveKeys.d = false;
                 break;
             case "Space":
-                moveKeys.y = 0;
+                moveKeys.up = false;
                 break;
             case "ShiftLeft":
-                moveKeys.y = 0;
+                moveKeys.down = false;
                 break;
         };
     });
@@ -75,6 +80,23 @@ async function main() {
     const wireframeInput = document.getElementById("wireframe");
     wireframeInput.addEventListener("input", (e) => {
         game.updateWireframe(e.target.checked);
+    })
+
+    const pauseInput = document.getElementById("pauseCulling");
+    pauseInput.addEventListener("input", (e) => {
+        game.pauseFrustum(e.target.checked);
+    })
+
+    const renderDisInput = document.getElementById("renderDisInput");
+    const renderDisValue = document.getElementById("renderDisValue");
+    updateRenderDisValue()
+    renderDisInput.addEventListener("input", updateRenderDisValue);
+    function updateRenderDisValue() {
+        let dis = renderDisInput.value;
+        renderDisValue.innerHTML = dis * 32;
+    }
+    renderDisInput.addEventListener("mouseup", () => {
+        game.updateRenderDis(renderDisInput.value);
     })
 
     window.addEventListener("resize", () => {

@@ -44,23 +44,9 @@ class Game {
     }
 
     setup() {
-        this.camera.position = { x: -100, y: 60, z: -100 };
-        this.camera.forwardVec = normalize({ x: 1, y: 0, z: 1 });
+        this.camera.position = { x: -117, y: 125, z: 220 };
+        this.camera.forwardVec = normalize({ x: 1, y: 0, z: -1 });
         this.updateCanvas();
-
-        const engine = this.engine;
-        return;
-
-        const shader = new Shader(
-            engine.gl,
-            engine.compileShader(engine.gl.VERTEX_SHADER, VERT_VOXEL_SHADER),
-            engine.compileShader(engine.gl.FRAGMENT_SHADER, FRAG_VOXEL_SHADER)
-        );
-
-        const mesh = new VoxelMesh(engine.gl, shader);
-
-        const obj = new RenderObject(mesh);
-        engine.renderObjects.push(obj);
     }
 
     tick() {
@@ -70,6 +56,13 @@ class Game {
     updateCanvas() {
         this.engine.resizeCanvas();
         this.camera.updateMats();
+    }
+
+    getPosition() {
+        let x = this.camera.position.x.toFixed(0);
+        let y = this.camera.position.y.toFixed(0);
+        let z = this.camera.position.z.toFixed(0);
+        return { x: x, y: y, z: z }; getPosition
     }
 
     /**
@@ -91,6 +84,14 @@ class Game {
 
     updateWireframe(isChecked) {
         this.engine.wireFrame = isChecked;
+    }
+
+    updateRenderDis(d) {
+        this.engine.voxelEngine.updateRenderDis(d);
+    }
+
+    pauseFrustum(isChecked) {
+        this.engine.voxelEngine.pauseCulling = isChecked;
     }
 }
 

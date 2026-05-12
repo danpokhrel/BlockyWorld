@@ -1,5 +1,4 @@
 extern crate noiselib;
-use std::process::id;
 
 use self::noiselib::uniform::UniformRandomGen;
 use crate::{types::CVec3, voxel_chunk::*};
@@ -34,7 +33,7 @@ pub fn generate_chunk(arr: &mut Box<[u8; VOX_COUNT]>, origin: CVec3) {
             continue;
         }
 
-        if y >= HEIGHT_LIMIT || y >= height {
+        if y >= HEIGHT_LIMIT || y >= height || y == 0 {
             continue; // blocks already initilized to air
         }
 
@@ -53,9 +52,8 @@ fn terrain_height(rng: &mut UniformRandomGen, x: i32, z: i32) -> i32 {
     let mut amplitude = 1.0;
     let mut frequency = 1.0;
     let mut max_value = 0.0;
-    let num_octaves = 5;
+    let num_octaves = 4;
 
-    // Fractional Brownian Motion - combine multiple octaves of simplex noise
     for _ in 0..num_octaves {
         let nx = (x as f32) * frequency * 0.003;
         let nz = (z as f32) * frequency * 0.003;
@@ -63,13 +61,11 @@ fn terrain_height(rng: &mut UniformRandomGen, x: i32, z: i32) -> i32 {
         height += noiselib::simplex::simplex_noise_2d(rng, nx, nz, 0) * amplitude;
         max_value += amplitude;
 
-        amplitude *= 0.5;
-        frequency *= 2.0;
+        amplitude *= 0.3;
+        frequency *= 3.0;
     }
 
-    // Normalize noise to 0-1 range
     let normalized = (height / max_value + 1.0) * 0.5;
 
-    // Scale to 1-200 range
     ((normalized * 150.0) + 1.0) as i32
 }

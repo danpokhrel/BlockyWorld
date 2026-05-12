@@ -11,20 +11,7 @@ class GraphicsEngine {
         this.renderObjects = [];
         this.setGlStates(this.gl);
 
-        this.voxelShader = new Shader(
-            this.gl,
-            this.compileShader(this.gl.VERTEX_SHADER, VERT_VOXEL_SHADER),
-            this.compileShader(this.gl.FRAGMENT_SHADER, FRAG_VOXEL_SHADER)
-        );
-        this.voxelEngine = new window.WASM.VoxelEngine(this.gl, this.voxelShader.program);
-
-        let start = performance.now();
-        console.log(this.voxelEngine.init());
-        console.log("Generation: ", performance.now() - start);
-        start = performance.now();
-        this.voxelEngine.upload_chunks();
-        console.log("Upload: ", performance.now() - start);
-
+        this.voxelEngine = new VoxelEngine(this);
     }
 
     /**
@@ -49,25 +36,13 @@ class GraphicsEngine {
         let type = this.gl.TRIANGLES;
         if (this.wireFrame) { type = this.gl.LINES };
 
-        this.gl.useProgram(this.voxelShader.program);
-        this.voxelShader.uploadCameraUBO(viewMat, projMat);
-        //this.voxelShader.uploadChunkUBO(0, 0, 0);
-        this.voxelEngine.draw_chunks(type);
+        // Render Voxels
+        this.voxelEngine.drawVoxels(viewMat, projMat, type);
 
-        return;
-
+        // Render Meshes
         for (const obj of this.renderObjects) {
             this.gl.useProgram(obj.shader.program);
             obj.shader.uploadCameraUBO(viewMat, projMat);
-
-            for (let x = 0; x < 1; x++) {
-                for (let y = 0; y < 1; y++) {
-                    obj.shader.uploadChunkUBO(x * 32, 0, y * 32);
-                    this.gl.bindVertexArray(obj.mesh.vao);
-
-                    this.gl.drawArrays(type, 0, obj.mesh.vertexCount);
-                }
-            }
         }
     }
 

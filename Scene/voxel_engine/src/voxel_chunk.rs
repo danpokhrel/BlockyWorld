@@ -1,39 +1,67 @@
-use crate::types::*;
+use crate::{types::*, world_generator::generate_chunk};
 use wasm_bindgen::prelude::*;
+use web_sys::js_sys;
 
-pub const HEIGHT_LIMIT_C: i32 = 5;
-pub const HEIGHT_LIMIT: i32 = 32 * HEIGHT_LIMIT_C;
+pub const CHUNK_LENGTH: usize = 32;
+pub const HEIGHT_LIMIT: i32 = CHUNK_LENGTH as i32 * 5;
 // Padded on all sides
-pub const SIZE: usize = 32 + 2;
+pub const SIZE: usize = CHUNK_LENGTH + 2;
 pub const SIZE8: u8 = SIZE as u8;
 pub const VOX_COUNT: usize = SIZE * SIZE * SIZE;
 const VERT_BUFFER_RESERVE_SIZE: usize = 100_000;
 
+#[wasm_bindgen]
 pub struct VoxelChunk {
-    pub arr: Option<Box<[u8; VOX_COUNT]>>,
-    pub verts: Vec<u32>,
-    pub ready: bool,
+    arr: Option<Box<[u8; VOX_COUNT]>>,
+    origin: CVec3,
+    verts: Vec<u32>,
 }
 
+#[wasm_bindgen]
 impl VoxelChunk {
-    pub fn new() -> Self {
+    #[wasm_bindgen(constructor)]
+    pub fn new(x: i32, y: i32, z: i32) -> Self {
         Self {
             arr: None,
+            origin: CVec3(x, y, z),
             verts: vec![],
-            ready: false,
         }
     }
 
+    #[wasm_bindgen]
     pub fn init(&mut self) {
         self.arr = Some(Box::new([0; VOX_COUNT]));
         self.verts.reserve(VERT_BUFFER_RESERVE_SIZE);
     }
 
+    #[wasm_bindgen]
     pub fn free(&mut self) {
         self.arr = None;
         self.verts = vec![];
     }
 
+    #[wasm_bindgen]
+    pub fn generate(&mut self) {
+        if let Some(arr) = self.arr.as_mut() {
+            generate_chunk(arr, self.origin);
+        }
+    }
+
+    #[wasm_bindgen]
+    pub unsafe fn get_buffer(&self) -> js_sys::Uint32Array {
+        js_sys::Uint32Array::view(&self.verts)
+    }
+
+    #[wasm_bindgen]
+    pub fn is_empty(&self) -> bool {
+        self.verts.is_empty()
+    }
+
+    pub fn get_vert_len(&self) -> usize {
+        self.verts.len()
+    }
+
+    #[wasm_bindgen]
     pub fn generate_mesh(&mut self) {
         let mut neighbors: [[[bool; 3]; 3]; 3] = [[[false; 3]; 3]; 3];
         let (mut ao0, mut ao1, mut ao2, mut ao3): (u8, u8, u8, u8);

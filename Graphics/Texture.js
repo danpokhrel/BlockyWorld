@@ -51,22 +51,3 @@ function setupTextures(gl) {
 
     return textures;
 }
-
-function loadImages(urls, callback) {
-    const images = [];
-    let loaded = 0;
-
-    urls.forEach((url, i) => {
-        const img = new Image();
-        img.src = url;
-
-        img.onload = () => {
-            images[i] = img;
-            loaded++;
-
-            if (loaded === urls.length) {
-                callback(images);
-            }
-        };
-    });
-}

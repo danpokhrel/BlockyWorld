@@ -1,124 +1,69 @@
 /* @ts-self-types="./voxel_engine.d.ts" */
 
-export class VoxelEngine {
+export class VoxelChunk {
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
         this.__wbg_ptr = 0;
-        VoxelEngineFinalization.unregister(this);
+        VoxelChunkFinalization.unregister(this);
         return ptr;
     }
     free() {
         const ptr = this.__destroy_into_raw();
-        wasm.__wbg_voxelengine_free(ptr, 0);
+        wasm.__wbg_voxelchunk_free(ptr, 0);
+    }
+    free() {
+        wasm.voxelchunk_free(this.__wbg_ptr);
+    }
+    generate() {
+        wasm.voxelchunk_generate(this.__wbg_ptr);
+    }
+    generate_mesh() {
+        wasm.voxelchunk_generate_mesh(this.__wbg_ptr);
     }
     /**
-     * @param {number} mode
+     * @returns {Uint32Array}
      */
-    draw_chunks(mode) {
-        wasm.voxelengine_draw_chunks(this.__wbg_ptr, mode);
+    get_buffer() {
+        const ret = wasm.voxelchunk_get_buffer(this.__wbg_ptr);
+        return ret;
     }
     /**
-     * @returns {Int32Array}
+     * @returns {number}
      */
+    get_vert_len() {
+        const ret = wasm.voxelchunk_get_vert_len(this.__wbg_ptr);
+        return ret >>> 0;
+    }
     init() {
-        const ret = wasm.voxelengine_init(this.__wbg_ptr);
-        var v1 = getArrayI32FromWasm0(ret[0], ret[1]).slice();
-        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
-        return v1;
+        wasm.voxelchunk_init(this.__wbg_ptr);
     }
     /**
-     * @param {WebGL2RenderingContext} gl
-     * @param {WebGLProgram} program
+     * @returns {boolean}
      */
-    constructor(gl, program) {
-        const ret = wasm.voxelengine_new(gl, program);
+    is_empty() {
+        const ret = wasm.voxelchunk_is_empty(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} z
+     */
+    constructor(x, y, z) {
+        const ret = wasm.voxelchunk_new(x, y, z);
         this.__wbg_ptr = ret;
-        VoxelEngineFinalization.register(this, this.__wbg_ptr, this);
+        VoxelChunkFinalization.register(this, this.__wbg_ptr, this);
         return this;
     }
-    upload_chunks() {
-        wasm.voxelengine_upload_chunks(this.__wbg_ptr);
-    }
 }
-if (Symbol.dispose) VoxelEngine.prototype[Symbol.dispose] = VoxelEngine.prototype.free;
+if (Symbol.dispose) VoxelChunk.prototype[Symbol.dispose] = VoxelChunk.prototype.free;
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,
-        __wbg___wbindgen_debug_string_edece8177ad01481: function(arg0, arg1) {
-            const ret = debugString(arg1);
-            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len1 = WASM_VECTOR_LEN;
-            getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
-            getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
-        },
-        __wbg___wbindgen_number_get_f73a1244370fcc2c: function(arg0, arg1) {
-            const obj = arg1;
-            const ret = typeof(obj) === 'number' ? obj : undefined;
-            getDataViewMemory0().setFloat64(arg0 + 8 * 1, isLikeNone(ret) ? 0 : ret, true);
-            getDataViewMemory0().setInt32(arg0 + 4 * 0, !isLikeNone(ret), true);
-        },
         __wbg___wbindgen_throw_9c31b086c2b26051: function(arg0, arg1) {
             throw new Error(getStringFromWasm0(arg0, arg1));
         },
-        __wbg_bindBufferBase_1dd5ce93edd4e414: function(arg0, arg1, arg2, arg3) {
-            arg0.bindBufferBase(arg1 >>> 0, arg2 >>> 0, arg3);
-        },
-        __wbg_bindBuffer_1a31fd3809dc22c8: function(arg0, arg1, arg2) {
-            arg0.bindBuffer(arg1 >>> 0, arg2);
-        },
-        __wbg_bindVertexArray_f8587a616356d307: function(arg0, arg1) {
-            arg0.bindVertexArray(arg1);
-        },
-        __wbg_bufferData_74a0b79b4c9d8f96: function(arg0, arg1, arg2, arg3) {
-            arg0.bufferData(arg1 >>> 0, arg2, arg3 >>> 0);
-        },
-        __wbg_bufferData_aebf4ed69e98d559: function(arg0, arg1, arg2, arg3) {
-            arg0.bufferData(arg1 >>> 0, arg2, arg3 >>> 0);
-        },
-        __wbg_bufferSubData_0e5936ef36f518d2: function(arg0, arg1, arg2, arg3) {
-            arg0.bufferSubData(arg1 >>> 0, arg2, arg3);
-        },
-        __wbg_createBuffer_1c3448547584bc5a: function(arg0) {
-            const ret = arg0.createBuffer();
-            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
-        },
-        __wbg_createVertexArray_050d27763dfd72fa: function(arg0) {
-            const ret = arg0.createVertexArray();
-            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
-        },
-        __wbg_drawArrays_7f9a3dcec5315ce5: function(arg0, arg1, arg2, arg3) {
-            arg0.drawArrays(arg1 >>> 0, arg2, arg3);
-        },
-        __wbg_enableVertexAttribArray_9963bb377f60317c: function(arg0, arg1) {
-            arg0.enableVertexAttribArray(arg1 >>> 0);
-        },
-        __wbg_getActiveUniformBlockParameter_33a6830321747125: function() { return handleError(function (arg0, arg1, arg2, arg3) {
-            const ret = arg0.getActiveUniformBlockParameter(arg1, arg2 >>> 0, arg3 >>> 0);
-            return ret;
-        }, arguments); },
-        __wbg_getAttribLocation_7386be18a8dae70f: function(arg0, arg1, arg2, arg3) {
-            const ret = arg0.getAttribLocation(arg1, getStringFromWasm0(arg2, arg3));
-            return ret;
-        },
-        __wbg_getUniformBlockIndex_3aa1c4c48062a404: function(arg0, arg1, arg2, arg3) {
-            const ret = arg0.getUniformBlockIndex(arg1, getStringFromWasm0(arg2, arg3));
-            return ret;
-        },
-        __wbg_uniformBlockBinding_25e6ae614200cf4d: function(arg0, arg1, arg2, arg3) {
-            arg0.uniformBlockBinding(arg1, arg2 >>> 0, arg3 >>> 0);
-        },
-        __wbg_useProgram_3cc1a6d58dac88b4: function(arg0, arg1) {
-            arg0.useProgram(arg1);
-        },
-        __wbg_vertexAttribIPointer_e65b21fd97a67466: function(arg0, arg1, arg2, arg3, arg4, arg5) {
-            arg0.vertexAttribIPointer(arg1 >>> 0, arg2, arg3 >>> 0, arg4, arg5);
-        },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Ref(Slice(F32)) -> NamedExternref("Float32Array")`.
-            const ret = getArrayF32FromWasm0(arg0, arg1);
-            return ret;
-        },
-        __wbindgen_cast_0000000000000002: function(arg0, arg1) {
             // Cast intrinsic for `Ref(Slice(U32)) -> NamedExternref("Uint32Array")`.
             const ret = getArrayU32FromWasm0(arg0, arg1);
             return ret;
@@ -139,118 +84,13 @@ function __wbg_get_imports() {
     };
 }
 
-const VoxelEngineFinalization = (typeof FinalizationRegistry === 'undefined')
+const VoxelChunkFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_voxelengine_free(ptr, 1));
-
-function addToExternrefTable0(obj) {
-    const idx = wasm.__externref_table_alloc();
-    wasm.__wbindgen_externrefs.set(idx, obj);
-    return idx;
-}
-
-function debugString(val) {
-    // primitive types
-    const type = typeof val;
-    if (type == 'number' || type == 'boolean' || val == null) {
-        return  `${val}`;
-    }
-    if (type == 'string') {
-        return `"${val}"`;
-    }
-    if (type == 'symbol') {
-        const description = val.description;
-        if (description == null) {
-            return 'Symbol';
-        } else {
-            return `Symbol(${description})`;
-        }
-    }
-    if (type == 'function') {
-        const name = val.name;
-        if (typeof name == 'string' && name.length > 0) {
-            return `Function(${name})`;
-        } else {
-            return 'Function';
-        }
-    }
-    // objects
-    if (Array.isArray(val)) {
-        const length = val.length;
-        let debug = '[';
-        if (length > 0) {
-            debug += debugString(val[0]);
-        }
-        for(let i = 1; i < length; i++) {
-            debug += ', ' + debugString(val[i]);
-        }
-        debug += ']';
-        return debug;
-    }
-    // Test for built-in
-    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
-    let className;
-    if (builtInMatches && builtInMatches.length > 1) {
-        className = builtInMatches[1];
-    } else {
-        // Failed to match the standard '[object ClassName]'
-        return toString.call(val);
-    }
-    if (className == 'Object') {
-        // we're a user defined class or Object
-        // JSON.stringify avoids problems with cycles, and is generally much
-        // easier than looping through ownProperties of `val`.
-        try {
-            return 'Object(' + JSON.stringify(val) + ')';
-        } catch (_) {
-            return 'Object';
-        }
-    }
-    // errors
-    if (val instanceof Error) {
-        return `${val.name}: ${val.message}\n${val.stack}`;
-    }
-    // TODO we could test for more things here, like `Set`s and `Map`s.
-    return className;
-}
-
-function getArrayF32FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getFloat32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
-}
-
-function getArrayI32FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getInt32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
-}
+    : new FinalizationRegistry(ptr => wasm.__wbg_voxelchunk_free(ptr, 1));
 
 function getArrayU32FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
-}
-
-let cachedDataViewMemory0 = null;
-function getDataViewMemory0() {
-    if (cachedDataViewMemory0 === null || cachedDataViewMemory0.buffer.detached === true || (cachedDataViewMemory0.buffer.detached === undefined && cachedDataViewMemory0.buffer !== wasm.memory.buffer)) {
-        cachedDataViewMemory0 = new DataView(wasm.memory.buffer);
-    }
-    return cachedDataViewMemory0;
-}
-
-let cachedFloat32ArrayMemory0 = null;
-function getFloat32ArrayMemory0() {
-    if (cachedFloat32ArrayMemory0 === null || cachedFloat32ArrayMemory0.byteLength === 0) {
-        cachedFloat32ArrayMemory0 = new Float32Array(wasm.memory.buffer);
-    }
-    return cachedFloat32ArrayMemory0;
-}
-
-let cachedInt32ArrayMemory0 = null;
-function getInt32ArrayMemory0() {
-    if (cachedInt32ArrayMemory0 === null || cachedInt32ArrayMemory0.byteLength === 0) {
-        cachedInt32ArrayMemory0 = new Int32Array(wasm.memory.buffer);
-    }
-    return cachedInt32ArrayMemory0;
 }
 
 function getStringFromWasm0(ptr, len) {
@@ -273,56 +113,6 @@ function getUint8ArrayMemory0() {
     return cachedUint8ArrayMemory0;
 }
 
-function handleError(f, args) {
-    try {
-        return f.apply(this, args);
-    } catch (e) {
-        const idx = addToExternrefTable0(e);
-        wasm.__wbindgen_exn_store(idx);
-    }
-}
-
-function isLikeNone(x) {
-    return x === undefined || x === null;
-}
-
-function passStringToWasm0(arg, malloc, realloc) {
-    if (realloc === undefined) {
-        const buf = cachedTextEncoder.encode(arg);
-        const ptr = malloc(buf.length, 1) >>> 0;
-        getUint8ArrayMemory0().subarray(ptr, ptr + buf.length).set(buf);
-        WASM_VECTOR_LEN = buf.length;
-        return ptr;
-    }
-
-    let len = arg.length;
-    let ptr = malloc(len, 1) >>> 0;
-
-    const mem = getUint8ArrayMemory0();
-
-    let offset = 0;
-
-    for (; offset < len; offset++) {
-        const code = arg.charCodeAt(offset);
-        if (code > 0x7F) break;
-        mem[ptr + offset] = code;
-    }
-    if (offset !== len) {
-        if (offset !== 0) {
-            arg = arg.slice(offset);
-        }
-        ptr = realloc(ptr, len, len = offset + arg.length * 3, 1) >>> 0;
-        const view = getUint8ArrayMemory0().subarray(ptr + offset, ptr + len);
-        const ret = cachedTextEncoder.encodeInto(arg, view);
-
-        offset += ret.written;
-        ptr = realloc(ptr, len, offset, 1) >>> 0;
-    }
-
-    WASM_VECTOR_LEN = offset;
-    return ptr;
-}
-
 let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 cachedTextDecoder.decode();
 const MAX_SAFARI_DECODE_BYTES = 2146435072;
@@ -337,29 +127,11 @@ function decodeText(ptr, len) {
     return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len));
 }
 
-const cachedTextEncoder = new TextEncoder();
-
-if (!('encodeInto' in cachedTextEncoder)) {
-    cachedTextEncoder.encodeInto = function (arg, view) {
-        const buf = cachedTextEncoder.encode(arg);
-        view.set(buf);
-        return {
-            read: arg.length,
-            written: buf.length
-        };
-    };
-}
-
-let WASM_VECTOR_LEN = 0;
-
 let wasmModule, wasmInstance, wasm;
 function __wbg_finalize_init(instance, module) {
     wasmInstance = instance;
     wasm = instance.exports;
     wasmModule = module;
-    cachedDataViewMemory0 = null;
-    cachedFloat32ArrayMemory0 = null;
-    cachedInt32ArrayMemory0 = null;
     cachedUint32ArrayMemory0 = null;
     cachedUint8ArrayMemory0 = null;
     wasm.__wbindgen_start();

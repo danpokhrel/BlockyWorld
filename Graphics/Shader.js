@@ -59,6 +59,7 @@ class Shader {
         mat.multiply(view);
         this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.cameraUBO);
         this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, mat.elements);
+        return mat;
     }
 
     /**

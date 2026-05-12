@@ -1,7 +1,7 @@
 // ---------- WASM ---------- //
-import init, { VoxelEngine } from "./Scene/voxel_engine/pkg/voxel_engine.js";
+import init, { VoxelChunk } from "./Scene/voxel_engine/pkg/voxel_engine.js";
 await init();
-window.WASM = { VoxelEngine };
+window.WASM = { VoxelChunk };
 
 // ---------- Textures ---------- // 
 const dir = "./Assets/Blocks/";
