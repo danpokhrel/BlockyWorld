@@ -23,6 +23,9 @@ async function main() {
     }
 
     canvas.addEventListener("click", () => {
+        if (document.pointerLockElement == canvas) {
+            game.setBlock(0);
+        }
         // Locked mouse in game
         canvas.requestPointerLock();
     });

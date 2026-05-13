@@ -50,7 +50,10 @@ class ChunkWrapper {
         y += this.pos.y;
         z += this.pos.z;
 
-        //if (idx > 0) this.chunk.generate_mesh();
+        if (idx > 0 && mode >= 0) {
+            this.chunk.generate_mesh();
+            this.uploadBuffers(this.program);
+        }
 
         return { x: x, y: y, z: z };
     }
@@ -61,6 +64,7 @@ class ChunkWrapper {
     uploadBuffers(program) {
         if (this.isEmpty()) return;
         const gl = this.gl;
+        this.program = program;
 
         // VAO
         gl.useProgram(program);

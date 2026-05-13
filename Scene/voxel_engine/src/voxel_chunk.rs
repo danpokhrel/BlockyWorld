@@ -31,7 +31,7 @@ impl VoxelChunk {
     #[wasm_bindgen]
     pub fn init(&mut self) {
         self.arr = Some(Box::new([0; VOX_COUNT]));
-        self.verts.reserve(VERT_BUFFER_RESERVE_SIZE);
+        self.verts = Vec::with_capacity(VERT_BUFFER_RESERVE_SIZE);
     }
 
     #[wasm_bindgen]
@@ -63,6 +63,7 @@ impl VoxelChunk {
 
     #[wasm_bindgen]
     pub fn generate_mesh(&mut self) {
+        self.verts.clear();
         let mut neighbors: [[[bool; 3]; 3]; 3] = [[[false; 3]; 3]; 3];
         let (mut ao0, mut ao1, mut ao2, mut ao3): (u8, u8, u8, u8);
 

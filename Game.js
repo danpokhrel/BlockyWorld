@@ -54,6 +54,10 @@ class Game {
         this.engine.obj.modelMat.setTranslate(pos.x, pos.y, pos.z);
     }
 
+    setBlock(id) {
+        this.engine.voxelEngine.rayCast(id, this.camera.position, this.camera.forwardVec);
+    }
+
     updateCanvas() {
         this.engine.resizeCanvas();
         this.camera.updateMats();

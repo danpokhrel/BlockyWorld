@@ -18,7 +18,6 @@ class VoxelEngine {
             document.getElementById("renderDisInput").value = last;
         }
         this.renderDistance = document.getElementById("renderDisInput").value;
-        console.log(this.renderDistance);
         this.camPlanes = null;
         this.pauseCulling = false;
 
