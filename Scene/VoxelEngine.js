@@ -23,8 +23,7 @@ class VoxelEngine {
         this.centerChunk = { x: 0, y: 0, z: 0 };
 
         this.chunks = new Map();
-        this.buildCalls = 0;
-        this.lastBuildTime = performance.now();
+        this.buildMutex = false;
         this.buildChunks();
     }
 
@@ -185,12 +184,10 @@ class VoxelEngine {
     }
 
     async buildChunks() {
-        const myCall = ++this.buildCalls; // prevent multiple buildChunks from running at the same time
-        this.lastBuildTime = performance.now();
-
-        while (this.camPlanes == null) {
+        while (this.camPlanes == null || this.buildMutex) {
             await this.yield();
         }
+        this.buildMutex = true; // prevent multiple builds happening at the same time
         const t = this;
         let i = 0
 
@@ -212,9 +209,9 @@ class VoxelEngine {
                         { x: x * 32, y: 0, z: z * 32 },
                         { x: (x + 1) * 32, y: 200, z: (z + 1) * 32 },
                     )) {
-                        dist2 /= 1.5;
+                        dist2 /= 2;
                     } else {
-                        dist2 *= 1.5
+                        dist2 *= 2;
                     }
                 }
 
@@ -225,9 +222,6 @@ class VoxelEngine {
         cells.sort((a, b) => a[0] - b[0]);
 
         for (const [, x, z] of cells) {
-            if (myCall != this.buildCalls) {
-                return;
-            }
             await doChunk(x, z);
         }
 
@@ -249,6 +243,8 @@ class VoxelEngine {
                 }
             }
         }
+
+        this.buildMutex = false;
     }
 
     async updateCenter(worldPos) {
