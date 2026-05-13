@@ -6,7 +6,7 @@ class Camera {
         this.transform = new Matrix4();
         this.projMat = new Matrix4();
 
-        this.position = { x: 0, y: 1, z: -4 };
+        this.position = { x: 0, y: 0, z: 0 };
         this.forwardVec = normalize({ x: 0, y: 0, z: 1 });
         this.fov = 45;
 

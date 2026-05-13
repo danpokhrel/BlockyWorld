@@ -12,13 +12,27 @@ class GraphicsEngine {
         this.setGlStates(this.gl);
 
         this.voxelEngine = new VoxelEngine(this);
+
+        this.skyShader = new Shader(
+            this.gl,
+            this.compileShader(this.gl.VERTEX_SHADER, VERT_SKY_SHADER),
+            this.compileShader(this.gl.FRAGMENT_SHADER, FRAG_SKY_SHADER),
+        );
+
+        this.meshShader = new Shader(
+            this.gl,
+            this.compileShader(this.gl.VERTEX_SHADER, VERT_SHADER_CODE),
+            this.compileShader(this.gl.FRAGMENT_SHADER, FRAG_SHADER_CODE)
+        );
+        this.m = new Mesh(this.gl, this.meshShader, OBJ);
+        this.obj = new RenderObject(this.m);
+        this.renderObjects.push(this.obj);
     }
 
     /**
      * @param {WebGL2RenderingContext} gl 
      */
     setGlStates(gl) {
-        gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
         gl.frontFace(gl.CCW);
@@ -36,6 +50,13 @@ class GraphicsEngine {
         let type = this.gl.TRIANGLES;
         if (this.wireFrame) { type = this.gl.LINES };
 
+        // Render Sky
+        this.gl.disable(this.gl.DEPTH_TEST);
+        this.gl.useProgram(this.skyShader.program);
+        this.skyShader.uploadCameraUBO(viewMat, projMat);
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 3);
+        this.gl.enable(this.gl.DEPTH_TEST);
+
         // Render Voxels
         this.voxelEngine.drawVoxels(viewMat, projMat, type);
 
@@ -43,6 +64,9 @@ class GraphicsEngine {
         for (const obj of this.renderObjects) {
             this.gl.useProgram(obj.shader.program);
             obj.shader.uploadCameraUBO(viewMat, projMat);
+            obj.shader.uploadModelUBO(obj.modelMat);
+            this.gl.bindVertexArray(obj.mesh.vao);
+            this.gl.drawArrays(this.gl.TRIANGLES, 0, obj.mesh.vertexCount);
         }
     }
 

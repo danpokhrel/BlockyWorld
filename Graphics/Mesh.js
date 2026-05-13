@@ -24,9 +24,7 @@ class Mesh {
         gl.bindVertexArray(this.vao);
 
         this.positionBuffer = this.setupBuffer(shader.program, "position", this.positions, 3, gl.FLOAT);
-        this.uvBuffer = this.setupBuffer(shader.program, "uv", this.uvs, 2, gl.FLOAT);
-        this.texBuffer = this.setupBuffer(shader.program, "textureIndex", this.ids, 1, gl.FLOAT);
-        //this.normalBuffer = this.setupBuffer(shader.program, "normal", this.normals, 3, gl.FLOAT);
+        this.normalBuffer = this.setupBuffer(shader.program, "normal", this.normals, 3, gl.FLOAT);
     }
 
     /**

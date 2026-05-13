@@ -48,6 +48,9 @@ pub fn generate_chunk(arr: &mut Box<[u8; VOX_COUNT]>, origin: CVec3) {
 }
 
 fn terrain_height(rng: &mut UniformRandomGen, x: i32, z: i32) -> i32 {
+    let x = x + 220;
+    let z = z + 377;
+
     let mut height = 0.0;
     let mut amplitude = 1.0;
     let mut frequency = 1.0;
@@ -66,6 +69,7 @@ fn terrain_height(rng: &mut UniformRandomGen, x: i32, z: i32) -> i32 {
     }
 
     let normalized = (height / max_value + 1.0) * 0.5;
+    //let dist = ((x * x + z * z) as f32).sqrt();
 
     ((normalized * 150.0) + 1.0) as i32
 }

@@ -10,5 +10,7 @@ export const voxelchunk_get_vert_len: (a: number) => number;
 export const voxelchunk_init: (a: number) => void;
 export const voxelchunk_is_empty: (a: number) => number;
 export const voxelchunk_new: (a: number, b: number, c: number) => number;
+export const voxelchunk_ray_cast: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number];
 export const __wbindgen_externrefs: WebAssembly.Table;
+export const __wbindgen_free: (a: number, b: number, c: number) => void;
 export const __wbindgen_start: () => void;

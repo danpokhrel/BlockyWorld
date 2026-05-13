@@ -11,13 +11,61 @@ class VoxelEngine {
             graphics.compileShader(this.gl.VERTEX_SHADER, VERT_VOXEL_SHADER),
             graphics.compileShader(this.gl.FRAGMENT_SHADER, FRAG_VOXEL_SHADER)
         );
+        this.shader.uploadTextures();
 
+        const last = localStorage.getItem("renderDis");
+        if (last != null) {
+            document.getElementById("renderDisInput").value = last;
+        }
         this.renderDistance = document.getElementById("renderDisInput").value;
+        console.log(this.renderDistance);
         this.camPlanes = null;
         this.pauseCulling = false;
 
         this.chunks = new Map();
         this.buildChunks();
+    }
+
+    rayCast(mode, origin, direction) {
+        let [cx, cy, cz] = [Math.floor(origin.x / 32), Math.floor(origin.y / 32), Math.floor(origin.z / 32)];
+        let chunk = this.chunks.get(`${cx},${cy},${cz}`);
+        let result = null;
+        if (chunk != undefined) {
+            result = chunk.rayCast(mode, origin, direction);
+            if (result.x !== Number.MAX_SAFE_INTEGER) {
+                return result; // hit
+            }
+        }
+
+        // No hit in current chunk, try the next chunk in ray direction
+        let chunkMin = { x: cx * 32, y: cy * 32, z: cz * 32 };
+        let chunkMax = { x: (cx + 1) * 32, y: (cy + 1) * 32, z: (cz + 1) * 32 };
+
+        let tx = direction.x !== 0 ? (direction.x > 0 ? (chunkMax.x - origin.x) / direction.x : (chunkMin.x - origin.x) / direction.x) : Infinity;
+        let ty = direction.y !== 0 ? (direction.y > 0 ? (chunkMax.y - origin.y) / direction.y : (chunkMin.y - origin.y) / direction.y) : Infinity;
+        let tz = direction.z !== 0 ? (direction.z > 0 ? (chunkMax.z - origin.z) / direction.z : (chunkMin.z - origin.z) / direction.z) : Infinity;
+
+        let t_exit = Math.min(tx, ty, tz);
+        if (t_exit === Infinity) {
+            return { x: Infinity, y: Infinity, z: Infinity };
+        }
+
+        let new_origin = {
+            x: origin.x + direction.x * t_exit,
+            y: origin.y + direction.y * t_exit,
+            z: origin.z + direction.z * t_exit
+        };
+
+        let [ncx, ncy, ncz] = [Math.floor(new_origin.x / 32), Math.floor(new_origin.y / 32), Math.floor(new_origin.z / 32)];
+        let nextChunk = this.chunks.get(`${ncx},${ncy},${ncz}`);
+        if (nextChunk != undefined) {
+            result = nextChunk.rayCast(mode, origin, direction);
+            if (result.x !== Number.MAX_SAFE_INTEGER) {
+                return result;
+            }
+        }
+
+        return { x: Infinity, y: Infinity, z: Infinity };
     }
 
     drawVoxels(viewMat, projMat, renderType) {
@@ -61,7 +109,6 @@ class VoxelEngine {
     async buildChunks() {
         const t = this;
         let i = 0
-        let cx = 0, cz = 0;
 
         let r = this.renderDistance;
         const cells = [];
@@ -80,29 +127,13 @@ class VoxelEngine {
         for (const [, x, z] of cells) {
             await doChunk(x, z);
         }
-        return;
-
-        // Chebyschev distance
-        for (let r = 0; r <= 50; r++) {
-            for (let x = -r; x <= r; x++) {
-                await doChunk(cx + x, cz - r);
-                if (r != 0) {
-                    await doChunk(cx + x, cz + r);
-                }
-            }
-            for (let z = -r + 1; z <= r - 1; z++) {
-                await doChunk(cx - r, cz + z);
-                if (r != 0) {
-                    await doChunk(cx + r, cz + z);
-                }
-            }
-        }
 
         async function doChunk(x, z) {
             for (let y = 0; y < 5; y++) {
+                let [wx, wy, wz] = [x * 32, y * 32, z * 32];
                 let chunk = t.chunks.get(`${x},${y},${z}`)
                 if (chunk == undefined) {
-                    chunk = new ChunkWrapper(t.gl, x * 32, y * 32, z * 32);
+                    chunk = new ChunkWrapper(t.gl, wx, wy, wz);
                     t.chunks.set(`${x},${y},${z}`, chunk);
                 }
 

@@ -12,27 +12,66 @@ class Shader {
         this.program = this.createProgram();
         if (!this.program) { return; }
 
-        this.uploadTextures();
-
-        this.cameraUBO = gl.createBuffer();
-        gl.bindBuffer(gl.UNIFORM_BUFFER, this.cameraUBO);
-        const camIndex = gl.getUniformBlockIndex(this.program, "Camera");
-        const camSize = gl.getActiveUniformBlockParameter(this.program, camIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
-        gl.bufferData(gl.UNIFORM_BUFFER, camSize, gl.DYNAMIC_DRAW);
-
         const camBindingPoint = 0;
-        gl.bindBufferBase(gl.UNIFORM_BUFFER, camBindingPoint, this.cameraUBO);
-        gl.uniformBlockBinding(this.program, camIndex, camBindingPoint);
-
-        this.chunkUBO = gl.createBuffer();
-        gl.bindBuffer(gl.UNIFORM_BUFFER, this.chunkUBO);
-        const chunkIndex = gl.getUniformBlockIndex(this.program, "Chunk");
-        const chunkSize = gl.getActiveUniformBlockParameter(this.program, chunkIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
-        gl.bufferData(gl.UNIFORM_BUFFER, chunkSize, gl.STATIC_DRAW);
-
         const chunkBindingPoint = 1;
-        gl.bindBufferBase(gl.UNIFORM_BUFFER, chunkBindingPoint, this.chunkUBO);
-        gl.uniformBlockBinding(this.program, chunkIndex, chunkBindingPoint);
+        const skyCamBindingPoint = 2;
+        const meshCamBindingPoint = 3;
+        const meshBindingPoint = 4;
+
+        const camIndex = gl.getUniformBlockIndex(this.program, "Camera");
+        if (camIndex != gl.INVALID_INDEX) {
+            this.cameraUBO = gl.createBuffer();
+            gl.bindBuffer(gl.UNIFORM_BUFFER, this.cameraUBO);
+            const camSize = gl.getActiveUniformBlockParameter(this.program, camIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
+            gl.bufferData(gl.UNIFORM_BUFFER, camSize, gl.DYNAMIC_DRAW);
+
+            gl.bindBufferBase(gl.UNIFORM_BUFFER, camBindingPoint, this.cameraUBO);
+            gl.uniformBlockBinding(this.program, camIndex, camBindingPoint);
+        }
+
+        const skyCamIndex = gl.getUniformBlockIndex(this.program, "skyCam");
+        if (skyCamIndex != gl.INVALID_INDEX) {
+            this.cameraUBO = gl.createBuffer();
+            gl.bindBuffer(gl.UNIFORM_BUFFER, this.cameraUBO);
+            const camSize = gl.getActiveUniformBlockParameter(this.program, skyCamIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
+            gl.bufferData(gl.UNIFORM_BUFFER, camSize, gl.DYNAMIC_DRAW);
+
+            gl.bindBufferBase(gl.UNIFORM_BUFFER, skyCamBindingPoint, this.cameraUBO);
+            gl.uniformBlockBinding(this.program, skyCamIndex, skyCamBindingPoint);
+        }
+
+        const meshCamIndex = gl.getUniformBlockIndex(this.program, "MeshCamera");
+        if (meshCamIndex != gl.INVALID_INDEX) {
+            this.cameraUBO = gl.createBuffer();
+            gl.bindBuffer(gl.UNIFORM_BUFFER, this.cameraUBO);
+            const camSize = gl.getActiveUniformBlockParameter(this.program, meshCamIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
+            gl.bufferData(gl.UNIFORM_BUFFER, camSize, gl.DYNAMIC_DRAW);
+
+            gl.bindBufferBase(gl.UNIFORM_BUFFER, meshCamBindingPoint, this.cameraUBO);
+            gl.uniformBlockBinding(this.program, meshCamIndex, meshCamBindingPoint);
+        }
+
+        const modelIndex = gl.getUniformBlockIndex(this.program, "Model");
+        if (modelIndex != gl.INVALID_INDEX) {
+            this.modelUBO = gl.createBuffer();
+            gl.bindBuffer(gl.UNIFORM_BUFFER, this.modelUBO);
+            const size = gl.getActiveUniformBlockParameter(this.program, modelIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
+            gl.bufferData(gl.UNIFORM_BUFFER, size, gl.DYNAMIC_DRAW);
+
+            gl.bindBufferBase(gl.UNIFORM_BUFFER, meshBindingPoint, this.modelUBO);
+            gl.uniformBlockBinding(this.program, modelIndex, meshBindingPoint);
+        }
+
+        const chunkIndex = gl.getUniformBlockIndex(this.program, "Chunk");
+        if (chunkIndex != gl.INVALID_INDEX) {
+            this.chunkUBO = gl.createBuffer();
+            gl.bindBuffer(gl.UNIFORM_BUFFER, this.chunkUBO);
+            const chunkSize = gl.getActiveUniformBlockParameter(this.program, chunkIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
+            gl.bufferData(gl.UNIFORM_BUFFER, chunkSize, gl.STATIC_DRAW);
+
+            gl.bindBufferBase(gl.UNIFORM_BUFFER, chunkBindingPoint, this.chunkUBO);
+            gl.uniformBlockBinding(this.program, chunkIndex, chunkBindingPoint);
+        }
     }
 
     createProgram() {
@@ -71,6 +110,11 @@ class Shader {
         let mat = new Matrix4();
         mat.setTranslate(x, y, z);
         this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.chunkUBO);
+        this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, mat.elements);
+    }
+
+    uploadModelUBO(mat) {
+        this.gl.bindBuffer(this.gl.UNIFORM_BUFFER, this.modelUBO);
         this.gl.bufferSubData(this.gl.UNIFORM_BUFFER, 0, mat.elements);
     }
 

@@ -12,6 +12,7 @@ export class VoxelChunk {
     init(): void;
     is_empty(): boolean;
     constructor(x: number, y: number, z: number);
+    ray_cast(mode: number, ox: number, oy: number, oz: number, dx: number, dy: number, dz: number): Int32Array;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -27,7 +28,9 @@ export interface InitOutput {
     readonly voxelchunk_init: (a: number) => void;
     readonly voxelchunk_is_empty: (a: number) => number;
     readonly voxelchunk_new: (a: number, b: number, c: number) => number;
+    readonly voxelchunk_ray_cast: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number];
     readonly __wbindgen_externrefs: WebAssembly.Table;
+    readonly __wbindgen_free: (a: number, b: number, c: number) => void;
     readonly __wbindgen_start: () => void;
 }
 

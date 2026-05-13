@@ -44,10 +44,22 @@ class ChunkWrapper {
         return this.chunk.get_vert_len();
     }
 
+    rayCast(mode, origin, direction) {
+        let [idx, x, y, z] = this.chunk.ray_cast(mode, origin.x, origin.y, origin.z, direction.x, direction.y, direction.z);
+        x += this.pos.x;
+        y += this.pos.y;
+        z += this.pos.z;
+
+        //if (idx > 0) this.chunk.generate_mesh();
+
+        return { x: x, y: y, z: z };
+    }
+
     /**
      * @param {WebGLProgram} program 
      */
     uploadBuffers(program) {
+        if (this.isEmpty()) return;
         const gl = this.gl;
 
         // VAO

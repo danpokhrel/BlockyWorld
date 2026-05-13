@@ -15,6 +15,7 @@ in uint voxelData;
 flat out uint vTexIndex;
 
 out vec2 vUV;
+out vec3 vNormal;
 out float vAO;
 
 /**
@@ -75,6 +76,15 @@ vec2 getFaceUV(uint face, vec2 uv) {
     return offset * tileSize + uv * tileSize;
 }
 
+vec3 getFaceNorm(uint face) {
+    if (face == 0u) return vec3(1.0, 0.0, 0.0); // +X (Left)
+    if (face == 1u) return vec3(-1.0, 0.0, 0.0); // -X (Right)
+    if (face == 2u) return vec3(0.0, 1.0, 0.0); // +Y (Top)
+    if (face == 3u) return vec3(0.0, -1.0, 0.0); // -Y (Bottom)
+    if (face == 4u) return vec3(0.0, 0.0, 1.0); // +Z (Front)
+    return vec3(0.0, 0.0, -1.0);                 // -Z (Back)
+}
+
 void main() {
     vec3 position;
     uint face;
@@ -89,6 +99,8 @@ void main() {
     vec2 uv = getVertexUV(uint(gl_VertexID), face);
     vUV = getFaceUV(face, uv);
 
+    vNormal = getFaceNorm(face);
+
     gl_Position = cameraMat * modelMat * vec4(position, 1.0);
 }
 
@@ -102,20 +114,26 @@ uniform sampler2DArray textureArray;
 flat in uint vTexIndex;
 
 in vec2 vUV;
+in vec3 vNormal;
 in float vAO;
 
 out vec4 outColor;
 
+vec3 lightDir = normalize(vec3(1.0, 1.0, 0.0));
+
 void main(){
-    vec2 grid = abs(fract(vUV * 16.0) - 0.5);
-    float line = min(grid.x, grid.y);
-
-    float wire = smoothstep(0.02, 0.0, line);
-
     outColor = texture(textureArray, vec3(vUV, float(vTexIndex)));
-    outColor[0] *= 1.0-vAO;
-    outColor[1] *= 1.0-vAO;
-    outColor[2] *= 1.0-vAO;
+    float shadow = dot(vNormal, lightDir)*0.5 + 0.6;
+    outColor = vec4(outColor.rg * shadow, outColor.b * (shadow * 0.8 + 0.2), outColor.a);
+
+    outColor.rgb *= 1.0-vAO;
+
+    vec3 color = outColor.rgb;
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    float fogFactor = exp(-0.001 * depth);
+    vec3 fogColor = vec3(0.2, 0.5, 1.0);
+    color = mix(fogColor, color, fogFactor);
+    outColor.rgb = color;
 }
 
 `

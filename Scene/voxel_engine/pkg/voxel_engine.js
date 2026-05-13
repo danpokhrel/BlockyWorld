@@ -55,6 +55,22 @@ export class VoxelChunk {
         VoxelChunkFinalization.register(this, this.__wbg_ptr, this);
         return this;
     }
+    /**
+     * @param {number} mode
+     * @param {number} ox
+     * @param {number} oy
+     * @param {number} oz
+     * @param {number} dx
+     * @param {number} dy
+     * @param {number} dz
+     * @returns {Int32Array}
+     */
+    ray_cast(mode, ox, oy, oz, dx, dy, dz) {
+        const ret = wasm.voxelchunk_ray_cast(this.__wbg_ptr, mode, ox, oy, oz, dx, dy, dz);
+        var v1 = getArrayI32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
 }
 if (Symbol.dispose) VoxelChunk.prototype[Symbol.dispose] = VoxelChunk.prototype.free;
 function __wbg_get_imports() {
@@ -88,9 +104,22 @@ const VoxelChunkFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_voxelchunk_free(ptr, 1));
 
+function getArrayI32FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getInt32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
+}
+
 function getArrayU32FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
+}
+
+let cachedInt32ArrayMemory0 = null;
+function getInt32ArrayMemory0() {
+    if (cachedInt32ArrayMemory0 === null || cachedInt32ArrayMemory0.byteLength === 0) {
+        cachedInt32ArrayMemory0 = new Int32Array(wasm.memory.buffer);
+    }
+    return cachedInt32ArrayMemory0;
 }
 
 function getStringFromWasm0(ptr, len) {
@@ -132,6 +161,7 @@ function __wbg_finalize_init(instance, module) {
     wasmInstance = instance;
     wasm = instance.exports;
     wasmModule = module;
+    cachedInt32ArrayMemory0 = null;
     cachedUint32ArrayMemory0 = null;
     cachedUint8ArrayMemory0 = null;
     wasm.__wbindgen_start();

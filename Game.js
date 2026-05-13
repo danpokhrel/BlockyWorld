@@ -44,13 +44,14 @@ class Game {
     }
 
     setup() {
-        this.camera.position = { x: -117, y: 125, z: 220 };
+        this.camera.position = { x: 0, y: 65, z: 0 };
         this.camera.forwardVec = normalize({ x: 1, y: 0, z: -1 });
         this.updateCanvas();
     }
 
     tick() {
-
+        let pos = this.engine.voxelEngine.rayCast(-1, this.camera.position, this.camera.forwardVec);
+        this.engine.obj.modelMat.setTranslate(pos.x, pos.y, pos.z);
     }
 
     updateCanvas() {
@@ -62,7 +63,7 @@ class Game {
         let x = this.camera.position.x.toFixed(0);
         let y = this.camera.position.y.toFixed(0);
         let z = this.camera.position.z.toFixed(0);
-        return { x: x, y: y, z: z }; getPosition
+        return { x: x, y: y, z: z };
     }
 
     /**
