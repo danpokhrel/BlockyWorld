@@ -42,7 +42,7 @@
             <div class="center">
                 <div class="slider-inline">
                     <span>Render Distance</span>
-                    <input id="renderDisInput" type="range" min="4" max="40" value="30">
+                    <input id="renderDisInput" type="range" min="4" max="50" value="30">
                     <span class="value" id="renderDisValue">320 </span>
                 </div>
             </div>
@@ -59,6 +59,17 @@
 
         <!-- Right Panel -->
         <div class="right-panel">
+            <label>
+                Place Bloxk:
+                <select id="blockSelect">
+                    <option value="0">Air</option>
+                    <option value="1">Dirt</option>
+                    <option value="2">Grass</option>
+                    <option value="3">Stone</option>
+                    <option value="4">DarkStone</option>
+                    <option value="5">Water</option>
+                </select>
+            </label>
             <label>
                 <input type="checkbox" id="wireframe">
                 Wireframe
@@ -86,6 +97,7 @@
                 Note:<br>
                 Changing render distance is bugged and can freeze the program. For best results, set your desired render
                 distance and reload the page.<br><br>
+                Wait for world generation to finish if fps is low.<br><br>
                 <br>
                 Note to Grader:<br>
                 Each block type has its own texture stored in Assets/Blocks/<br>

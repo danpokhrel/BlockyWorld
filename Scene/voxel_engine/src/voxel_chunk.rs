@@ -8,7 +8,7 @@ pub const HEIGHT_LIMIT: i32 = CHUNK_LENGTH as i32 * 5;
 pub const SIZE: usize = CHUNK_LENGTH + 2;
 pub const SIZE8: u8 = SIZE as u8;
 pub const VOX_COUNT: usize = SIZE * SIZE * SIZE;
-const VERT_BUFFER_RESERVE_SIZE: usize = 100_000;
+const VERT_BUFFER_RESERVE_SIZE: usize = 0;
 
 #[wasm_bindgen]
 pub struct VoxelChunk {
@@ -153,7 +153,16 @@ impl VoxelChunk {
         dz: f32,
     ) -> Vec<i32> {
         if self.arr.is_none() {
-            return vec![0, i32::MAX, i32::MAX, i32::MAX];
+            return vec![
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+            ];
         }
         let arr = self.arr.as_mut().unwrap();
 
@@ -165,46 +174,113 @@ impl VoxelChunk {
         // Compute entry point into the chunk bounding box
         let mut t_min = 0.0f32;
         let mut t_max = f32::INFINITY;
+        let mut t_min_x = f32::NEG_INFINITY;
+        let mut t_min_y = f32::NEG_INFINITY;
+        let mut t_min_z = f32::NEG_INFINITY;
 
         // For x
         if dx != 0.0 {
             let t1 = (0.0 - local_ox) / dx;
             let t2 = (SIZE as f32 - local_ox) / dx;
-            let t_min_x = t1.min(t2);
+            t_min_x = t1.min(t2);
             let t_max_x = t1.max(t2);
             t_min = t_min.max(t_min_x);
             t_max = t_max.min(t_max_x);
         } else if local_ox < 0.0 || local_ox >= SIZE as f32 {
-            return vec![0, i32::MAX, i32::MAX, i32::MAX];
+            return vec![
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+            ];
         }
 
         // For y
         if dy != 0.0 {
             let t1 = (0.0 - local_oy) / dy;
             let t2 = (SIZE as f32 - local_oy) / dy;
-            let t_min_y = t1.min(t2);
+            t_min_y = t1.min(t2);
             let t_max_y = t1.max(t2);
             t_min = t_min.max(t_min_y);
             t_max = t_max.min(t_max_y);
         } else if local_oy < 0.0 || local_oy >= SIZE as f32 {
-            return vec![0, i32::MAX, i32::MAX, i32::MAX];
+            return vec![
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+            ];
         }
 
         // For z
         if dz != 0.0 {
             let t1 = (0.0 - local_oz) / dz;
             let t2 = (SIZE as f32 - local_oz) / dz;
-            let t_min_z = t1.min(t2);
+            t_min_z = t1.min(t2);
             let t_max_z = t1.max(t2);
             t_min = t_min.max(t_min_z);
             t_max = t_max.min(t_max_z);
         } else if local_oz < 0.0 || local_oz >= SIZE as f32 {
-            return vec![0, i32::MAX, i32::MAX, i32::MAX];
+            return vec![
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+            ];
         }
 
         if t_min > t_max {
-            return vec![0, i32::MAX, i32::MAX, i32::MAX];
+            return vec![
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+                0,
+                i32::MAX,
+                i32::MAX,
+                i32::MAX,
+            ];
         }
+
+        let entry_step_x = if t_min > 0.0 && dx != 0.0 && (t_min - t_min_x).abs() < 1e-6 {
+            if dx > 0.0 {
+                1
+            } else {
+                -1
+            }
+        } else {
+            0
+        };
+        let entry_step_y = if t_min > 0.0 && dy != 0.0 && (t_min - t_min_y).abs() < 1e-6 {
+            if dy > 0.0 {
+                1
+            } else {
+                -1
+            }
+        } else {
+            0
+        };
+        let entry_step_z = if t_min > 0.0 && dz != 0.0 && (t_min - t_min_z).abs() < 1e-6 {
+            if dz > 0.0 {
+                1
+            } else {
+                -1
+            }
+        } else {
+            0
+        };
 
         // Move to entry point
         local_ox += dx * t_min;
@@ -238,6 +314,19 @@ impl VoxelChunk {
         } else {
             0
         };
+
+        let mut face_step_x = entry_step_x;
+        let mut face_step_y = entry_step_y;
+        let mut face_step_z = entry_step_z;
+        if face_step_x == 0 && face_step_y == 0 && face_step_z == 0 {
+            if dx.abs() >= dy.abs() && dx.abs() >= dz.abs() {
+                face_step_x = step_x;
+            } else if dy.abs() >= dx.abs() && dy.abs() >= dz.abs() {
+                face_step_y = step_y;
+            } else {
+                face_step_z = step_z;
+            }
+        }
 
         // tMax calculations
         let mut t_max_x = if step_x > 0 {
@@ -285,12 +374,16 @@ impl VoxelChunk {
                 let idx = xyz_idx(x as u8, y as u8, z as u8);
                 let voxel_id = arr[idx];
                 if voxel_id != 0 {
+                    let mut modified_x = x;
+                    let mut modified_y = y;
+                    let mut modified_z = z;
+
                     if mode == 0 {
                         arr[idx] = 0;
                     } else if mode > 0 {
-                        let target_x = x + step_x;
-                        let target_y = y + step_y;
-                        let target_z = z + step_z;
+                        let target_x = x - face_step_x;
+                        let target_y = y - face_step_y;
+                        let target_z = z - face_step_z;
                         if target_x >= 0
                             && target_x < SIZE as i32
                             && target_y >= 0
@@ -301,28 +394,87 @@ impl VoxelChunk {
                             let target_idx =
                                 xyz_idx(target_x as u8, target_y as u8, target_z as u8);
                             arr[target_idx] = mode as u8;
+                            modified_x = target_x;
+                            modified_y = target_y;
+                            modified_z = target_z;
                         }
                     }
 
-                    return vec![voxel_id as i32, x, y, z];
+                    let status = if modified_x == 0
+                        || modified_x == (SIZE as i32 - 1)
+                        || modified_y == 0
+                        || modified_y == (SIZE as i32 - 1)
+                        || modified_z == 0
+                        || modified_z == (SIZE as i32 - 1)
+                    {
+                        2
+                    } else if modified_x == 1
+                        || modified_x == (SIZE as i32 - 2)
+                        || modified_y == 1
+                        || modified_y == (SIZE as i32 - 2)
+                        || modified_z == 1
+                        || modified_z == (SIZE as i32 - 2)
+                    {
+                        1
+                    } else {
+                        0
+                    };
+
+                    return vec![
+                        voxel_id as i32,
+                        x,
+                        y,
+                        z,
+                        status,
+                        modified_x,
+                        modified_y,
+                        modified_z,
+                    ];
                 }
             } else {
-                return vec![0, i32::MAX, i32::MAX, i32::MAX];
+                return vec![
+                    0,
+                    i32::MAX,
+                    i32::MAX,
+                    i32::MAX,
+                    0,
+                    i32::MAX,
+                    i32::MAX,
+                    i32::MAX,
+                ];
             }
 
             if t_max_x < t_max_y && t_max_x < t_max_z {
                 x += step_x;
+                face_step_x = step_x;
+                face_step_y = 0;
+                face_step_z = 0;
                 t_max_x += t_delta_x;
             } else if t_max_y < t_max_z {
                 y += step_y;
+                face_step_x = 0;
+                face_step_y = step_y;
+                face_step_z = 0;
                 t_max_y += t_delta_y;
             } else {
                 z += step_z;
+                face_step_x = 0;
+                face_step_y = 0;
+                face_step_z = step_z;
                 t_max_z += t_delta_z;
             }
         }
 
-        vec![0, i32::MAX, i32::MAX, i32::MAX]
+        vec![
+            0,
+            i32::MAX,
+            i32::MAX,
+            i32::MAX,
+            0,
+            i32::MAX,
+            i32::MAX,
+            i32::MAX,
+        ]
     }
 }
 

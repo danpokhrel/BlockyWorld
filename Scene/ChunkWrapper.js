@@ -45,17 +45,29 @@ class ChunkWrapper {
     }
 
     rayCast(mode, origin, direction) {
-        let [idx, x, y, z] = this.chunk.ray_cast(mode, origin.x, origin.y, origin.z, direction.x, direction.y, direction.z);
-        x += this.pos.x;
-        y += this.pos.y;
-        z += this.pos.z;
+        let [idx, lx, ly, lz, status, mx, my, mz] = this.chunk.ray_cast(mode, origin.x, origin.y, origin.z, direction.x, direction.y, direction.z);
+        let x = lx + this.pos.x;
+        let y = ly + this.pos.y;
+        let z = lz + this.pos.z;
 
         if (idx > 0 && mode >= 0) {
             this.chunk.generate_mesh();
             this.uploadBuffers(this.program);
         }
 
-        return { x: x, y: y, z: z };
+        return {
+            idx: idx,
+            x: x,
+            y: y,
+            z: z,
+            status: status,
+            localX: lx,
+            localY: ly,
+            localZ: lz,
+            modifiedLocalX: mx,
+            modifiedLocalY: my,
+            modifiedLocalZ: mz,
+        };
     }
 
     /**

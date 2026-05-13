@@ -19,7 +19,7 @@ pub fn generate_chunk(arr: &mut Box<[u8; VOX_COUNT]>, origin: CVec3) {
 
     for idx in 0..VOX_COUNT {
         let (x, y, z) = idx_xyz(idx);
-        let height = heightmap[x as usize][z as usize];
+        let height = heightmap[x as usize][z as usize] - 10;
         let h2 = heightmap2[x as usize][z as usize];
 
         let (_x, y, _z) = (
@@ -28,7 +28,7 @@ pub fn generate_chunk(arr: &mut Box<[u8; VOX_COUNT]>, origin: CVec3) {
             z as i32 + origin.2 - 1,
         );
 
-        if y < 30 {
+        if y < 10 {
             arr[idx] = 5;
             continue;
         }
@@ -43,6 +43,9 @@ pub fn generate_chunk(arr: &mut Box<[u8; VOX_COUNT]>, origin: CVec3) {
             arr[idx] = 2;
         } else {
             arr[idx] = 1;
+            if y == HEIGHT_LIMIT - 1 {
+                arr[idx] = 2;
+            }
         }
     }
 }
@@ -69,7 +72,7 @@ fn terrain_height(rng: &mut UniformRandomGen, x: i32, z: i32) -> i32 {
     }
 
     let normalized = (height / max_value + 1.0) * 0.5;
-    //let dist = ((x * x + z * z) as f32).sqrt();
+    let h_factor = ((x * x + z * z) as f32).sqrt() / 1000.0 + 0.25;
 
-    ((normalized * 150.0) + 1.0) as i32
+    (((normalized * 150.0) + 1.0) * h_factor) as i32
 }

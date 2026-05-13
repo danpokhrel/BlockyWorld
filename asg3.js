@@ -4,7 +4,7 @@ async function main() {
     const canvas = document.getElementById("canvas");
 
     var sensitivity = 0.002;
-    var moveSpeed = 0.05;
+    var moveSpeed = 0.01;
     var moveKeys = { w: false, a: false, s: false, d: false, up: false, down: false, q: false, e: false };
 
     const positionLabel = document.getElementById("PositionInfo");
@@ -22,9 +22,10 @@ async function main() {
         positionLabel.innerHTML = `Position: x:${pos.x} y:${pos.y} z:${pos.z}`;
     }
 
+    const blockSelect = document.getElementById("blockSelect");
     canvas.addEventListener("click", () => {
         if (document.pointerLockElement == canvas) {
-            game.setBlock(0);
+            game.setBlock(blockSelect.value);
         }
         // Locked mouse in game
         canvas.requestPointerLock();

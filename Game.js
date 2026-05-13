@@ -11,7 +11,6 @@ class Game {
         let renderTimes = [];
         let lastTime = performance.now();
         const frameLabel = document.getElementById("FrameInfo");
-        const posLabel = document.getElementById("PositionInfo");
         const AVG_OVER = 100;
 
         this.setup();
@@ -44,12 +43,13 @@ class Game {
     }
 
     setup() {
-        this.camera.position = { x: 0, y: 65, z: 0 };
+        this.camera.position = { x: 0, y: 32, z: 0 };
         this.camera.forwardVec = normalize({ x: 1, y: 0, z: -1 });
         this.updateCanvas();
     }
 
     tick() {
+        this.engine.voxelEngine.updateCenter(this.camera.position);
         let pos = this.engine.voxelEngine.rayCast(-1, this.camera.position, this.camera.forwardVec);
         this.engine.obj.modelMat.setTranslate(pos.x, pos.y, pos.z);
     }
